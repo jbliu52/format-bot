@@ -1,4 +1,7 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Scanner;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -90,12 +93,21 @@ public class FormatterGUI extends Application{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File to Format");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Java Files", "*.java"));
-		File selectedFile = fileChooser.showOpenDialog(stage);
-		System.out.println(selectedFile.toPath());
+		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
+		for(File file : selectedFiles) {
+			if(file != null) {
+				System.out.println(file.toPath());
+			}
+		}
 	}
 	
-	public void format() {
-		
+	public void format(File file) {
+		Scanner reader;
+		try {
+			reader = new Scanner(file);
+			
+			reader.close();
+		} catch (FileNotFoundException e) {e.printStackTrace();}
 	}
 	
 	public void settings() {
