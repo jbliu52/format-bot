@@ -97,6 +97,7 @@ public class FormatterGUI extends Application{
 		for(File file : selectedFiles) {
 			if(file != null) {
 				System.out.println(file.toPath());
+				format(file);
 			}
 		}
 	}
@@ -105,7 +106,18 @@ public class FormatterGUI extends Application{
 		Scanner reader;
 		try {
 			reader = new Scanner(file);
-			
+			while(reader.hasNextLine()) {
+				String str = reader.nextLine();
+				String[] split = str.split("\"\"");
+				for(String s : split) {
+					if(s.contains("if")) {
+						System.out.println(FormatterController.formatIf(str));
+					}
+					if(s.contains("else")) {
+						System.out.println(FormatterController.formatElse(str));
+					}
+				}
+			}
 			reader.close();
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 	}

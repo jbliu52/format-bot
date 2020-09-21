@@ -1,4 +1,3 @@
-
 /**
  * @author jerryliu
  * Date: Sep 19, 2020
@@ -9,19 +8,27 @@
 
 public class FormatterController {
 
-	public String format(String input) {
+	public static String format(String input) {
 		return "";
 	}
 	
-	public String formatFor(String input) {
+	public static String formatIf(String input) {
+		return input.replaceAll("if\\(", "if (").replaceAll("\\)\\{", ") {");
+	}
+	
+	public static String formatElse(String input) {
+		return input.replaceAll("\\}else", "} else").replaceAll("else\\{", "else {");
+	}
+	
+	public static String formatFor(String input) {
 		return "";
 	}
 
-	public String formatWhile(String input) {
+	public static String formatWhile(String input) {
 		return "";
 	}
 
-	public String formatSwitch(String input) {
+	public static String formatSwitch(String input) {
 		return "";
 	}
 }
