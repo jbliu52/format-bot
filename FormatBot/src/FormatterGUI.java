@@ -23,6 +23,8 @@ import javafx.stage.Stage;
 /**
  * @author jerryliu
  * @version Sep 17, 2020
+ * 
+ * 
  */
 
 public class FormatterGUI extends Application{
@@ -108,15 +110,25 @@ public class FormatterGUI extends Application{
 			reader = new Scanner(file);
 			while(reader.hasNextLine()) {
 				String str = reader.nextLine();
-				String[] split = str.split("\"\"");
-				for(String s : split) {
-					if(s.contains("if")) {
-						System.out.println(FormatterController.formatIf(str));
-					}
-					if(s.contains("else")) {
-						System.out.println(FormatterController.formatElse(str));
+				int tabs = 0;
+				int spaces = 0;
+				for(int i = 0; i < str.length(); i++) {
+					if(str.charAt(i) == '\t') {
+						tabs++;
+					}else if(str.charAt(i) == ' ') {
+						spaces++;
+					}else if(!Character.isWhitespace(str.charAt(i))) {
+						break;
 					}
 				}
+				str = "" + (tabs + spaces /4) + " " + str.substring(tabs + spaces);
+				if(str.contains("if")) {
+					str = FormatterController.formatIf(str);
+				}
+				if(str.contains("else")) {
+					str = FormatterController.formatElse(str);
+				}
+				System.out.println(str);
 			}
 			reader.close();
 		} catch (FileNotFoundException e) {e.printStackTrace();}
