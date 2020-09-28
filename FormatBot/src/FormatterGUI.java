@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -99,39 +101,38 @@ public class FormatterGUI extends Application{
 		for(File file : selectedFiles) {
 			if(file != null) {
 				System.out.println(file.toPath());
-				format(file);
+				File output = fileChooser.showOpenDialog(stage);
+				format(file, output);
 			}
 		}
 	}
 	
-	public void format(File file) {
+	public void format(File file, File output) {
 		Scanner reader;
+		FileWriter writer;
 		try {
 			reader = new Scanner(file);
+			writer = new FileWriter(output);
 			while(reader.hasNextLine()) {
 				String str = reader.nextLine();
-				int tabs = 0;
-				int spaces = 0;
-				for(int i = 0; i < str.length(); i++) {
-					if(str.charAt(i) == '\t') {
-						tabs++;
-					}else if(str.charAt(i) == ' ') {
-						spaces++;
-					}else if(!Character.isWhitespace(str.charAt(i))) {
-						break;
-					}
-				}
-				str = "" + (tabs + spaces /4) + " " + str.substring(tabs + spaces);
+				str = FormatterController.squeeze(str);
 				if(str.contains("if")) {
 					str = FormatterController.formatIf(str);
 				}
 				if(str.contains("else")) {
 					str = FormatterController.formatElse(str);
 				}
+				str = FormatterController.format(str);
 				System.out.println(str);
+				//writer.write(FormatterController.unsqueeze(str) + "\n");
 			}
 			reader.close();
-		} catch (FileNotFoundException e) {e.printStackTrace();}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void settings() {
