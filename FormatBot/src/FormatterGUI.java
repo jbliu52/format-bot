@@ -123,8 +123,8 @@ public class FormatterGUI extends Application{
 					str = FormatterController.formatElse(str);
 				}
 				str = FormatterController.format(str);
-				System.out.println(str);
-				//writer.write(FormatterController.unsqueeze(str) + "\n");
+				//System.out.println(str);
+				writer.write(FormatterController.unsqueeze(str));
 			}
 			reader.close();
 			writer.close();
