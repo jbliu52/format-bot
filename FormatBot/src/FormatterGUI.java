@@ -113,18 +113,54 @@ public class FormatterGUI extends Application{
 		try {
 			reader = new Scanner(file);
 			writer = new FileWriter(output);
+			boolean string = false;
+			boolean comment = false;
+			boolean line = false;
 			while(reader.hasNextLine()) {
 				String str = reader.nextLine();
+				
 				str = FormatterController.squeeze(str);
-				if(str.contains("if")) {
-					str = FormatterController.formatIf(str);
+				
+				String brug = "";
+				String s = "";
+				for(int i = 0; i < str.length(); i++) {
+					if(str.charAt(i) == '/' && i + 1 < str.length() && str.charAt(i + 1) == '/') {
+						brug += FormatterController.formatStatements(s);
+						brug += str.substring(i);
+						line = true;
+						break;
+					}
+					if(str.charAt(i) == '/' && i + 1 < str.length() && str.charAt(i + 1) == '*') {
+						comment = true;
+						brug += FormatterController.formatStatements(s);
+						s = "";
+					}
+					if(i - 1 > 0 && str.charAt(i - 1) == '*' && str.charAt(i) == '/') {
+						comment = false;
+					}
+					if(str.charAt(i) == '\"' && !comment) {
+						string = !string;
+						if(string) {
+							brug += FormatterController.formatStatements(s);
+							s = "";
+						}
+					}
+					if(!string && !comment) {
+						s += str.charAt(i);
+					}else {
+						brug += str.charAt(i);
+					}
 				}
-				if(str.contains("else")) {
-					str = FormatterController.formatElse(str);
+				if(!line) {
+					brug += FormatterController.formatStatements(s);
+				}else {
+					line = false;
 				}
-				str = FormatterController.format(str);
-				//System.out.println(str);
-				writer.write(FormatterController.unsqueeze(str));
+				if(!string && !comment) {
+					brug = FormatterController.format(brug);
+				}
+				System.out.println(brug);
+				writer.write(FormatterController.unsqueeze(brug));
 			}
 			reader.close();
 			writer.close();

@@ -30,7 +30,6 @@ public class FormatterController {
 		String[] lines = input.split("\n");
 		
 		for(String line : lines) {
-			System.out.println(line);
 			String[] str = line.split(" ");
 			int tabs = Integer.valueOf(str[0]);
 			for(int i = 0; i < tabs; i++) {
@@ -55,11 +54,31 @@ public class FormatterController {
 			}
 		}
 		
+		boolean comment = false;
+		boolean string = false;
+		
 		for(int i = 0; i < input.length(); i++) {
-			if(input.charAt(i) == '{' && i < last) {
-				str += "{\n" + (tabs + 1) + " ";
-			}else if(input.charAt(i) == '}' && i > 0) {
-				str += "\n" + tabs + " }";
+			if(input.charAt(i) == '/' && i + 1 < input.length() && input.charAt(i + 1) == '/') {
+				str += input.substring(i);
+				break;
+			}
+			if(input.charAt(i) == '/' && i + 1 < input.length() && input.charAt(i + 1) == '*') {
+				comment = true;
+			}
+			if(i - 1 > 0 && input.charAt(i - 1) == '*' && input.charAt(i) == '/') {
+				comment = false;
+			}
+			if(input.charAt(i) == '\"' && !comment) {
+				string = !string;
+			}
+			if(!string && !comment) {
+				if(input.charAt(i) == '{' && i < last) {
+					str += "{\n" + (tabs + 1) + " ";
+				}else if(input.charAt(i) == '}' && i > 0) {
+					str += "\n" + tabs + " }";
+				}else {
+					str += input.charAt(i);
+				}
 			}else {
 				str += input.charAt(i);
 			}
@@ -68,15 +87,29 @@ public class FormatterController {
 		return s + " " + str;
 	}
 	
-	public static String formatIf(String input) {
+	public static String formatStatements(String input) {
+		//System.out.println(input + " ee");
+		if(input.contains("if")) {
+			input = FormatterController.formatIf(input);
+		}
+		if(input.contains("else")) {
+			input = FormatterController.formatElse(input);
+		}
+		if(input.contains("for")) {
+			input = FormatterController.formatFor(input);
+		}
+		return input;
+	}
+	
+	private static String formatIf(String input) {
 		return input.replaceAll("if\\s*\\(", "if ("); //.replaceAll("\\)\\s*\\{", ") {");
 	}
 	
-	public static String formatElse(String input) {
+	private static String formatElse(String input) {
 		return input.replaceAll("\\}\\s*else", "} else"); //.replaceAll("else\\s*\\{", "else {");
 	}
 	
-	public static String formatFor(String input) {
+	private static String formatFor(String input) {
 		return input.replaceAll("for\\s*\\(", "for (").replaceAll("\\s*;\\s*", " ; ").replaceAll(")\\s*{", ") {");
 	}
 
