@@ -146,17 +146,18 @@ public class FormatterGUI extends Application{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		copy.deleteOnExit();
 		return copy;
 	}
 
 	public void undo() {
 		String filepath = paths.pop();
-		System.out.println(filepath);
+		File temp = undo.pop();
 		File copy = new File(filepath);
 		Scanner reader;
 		FileWriter writer;
 		try {
-			reader = new Scanner(undo.pop());
+			reader = new Scanner(temp);
 			writer = new FileWriter(copy);
 			while(reader.hasNextLine()) {
 				writer.write(reader.nextLine() + '\n');
