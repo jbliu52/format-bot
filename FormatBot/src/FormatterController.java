@@ -22,7 +22,7 @@ public class FormatterController {
 			}
 		}
 		
-		return "" + (tabs + spaces /4) + " " + input.substring(tabs + spaces);
+		return "" + (tabs + spaces /4) + " " + input.substring(tabs + spaces - spaces % 4);
 	}
 	
 	public static String unsqueeze(String input) {
@@ -44,7 +44,7 @@ public class FormatterController {
 	public static String format(String input) {
 		String s = input.split(" ")[0];
 		int tabs = Integer.valueOf(s);
-		input = input.replaceAll("\\s*\\{", " {").substring(s.length() + 1);
+		input = input.substring(s.length() + 1); //.replaceAll("\\s*\\{", " {");
 		String str = "";
 		
 		int last = input.length() - 1;
@@ -73,6 +73,9 @@ public class FormatterController {
 			}
 			if(!string && !comment) {
 				if(input.charAt(i) == '{' && i < last) {
+					if(i > 0 && !Character.isWhitespace(input.charAt(i - 1))) {
+						str += " ";
+					}
 					str += "{\n" + (tabs + 1) + " ";
 				}else if(input.charAt(i) == '}' && i > 0) {
 					str += "\n" + tabs + " }";

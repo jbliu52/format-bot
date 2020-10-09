@@ -2,8 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -34,6 +34,8 @@ public class FormatterGUI extends Application{
 	private static final int HEIGHT = 400;
 	
 	private Stage stage;
+	private Stack<File> undo;
+	private Stack<String> paths;
 	
 	public static void main(String[] args) {
 		launch();
@@ -42,6 +44,8 @@ public class FormatterGUI extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
+		undo = new Stack<File>();
+		paths = new Stack<String>();
 		
 		title();
 	}
@@ -69,7 +73,14 @@ public class FormatterGUI extends Application{
 		Button format = new Button("Format!");
 		format.setFont(new Font(20));
 		
+		Button undo = new Button("Undo!");
+		format.setFont(new Font(20));
+		
 		main.getChildren().addAll(title, format);
+		if(!paths.isEmpty() && !this.undo.isEmpty()) {
+			System.out.println("brug");
+			main.getChildren().add(undo);
+		}
 		
 		root.getChildren().addAll(menu, main);
 		
@@ -78,6 +89,14 @@ public class FormatterGUI extends Application{
 			public void handle(ActionEvent event) {
 				// TODO Auto-generated method stub
 				fileSelect();
+			}
+		});
+		
+		undo.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				// TODO Auto-generated method stub
+				undo();
 			}
 		});
 		
@@ -97,14 +116,59 @@ public class FormatterGUI extends Application{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select File to Format");
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Java Files", "*.java"));
-		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(stage);
-		for(File file : selectedFiles) {
-			if(file != null) {
-				System.out.println(file.toPath());
-				File output = fileChooser.showOpenDialog(stage);
+		File file = fileChooser.showOpenDialog(stage);
+		if(file != null) {
+			File output = fileChooser.showOpenDialog(stage);
+			System.out.println(output.getPath());
+			if(output != null) {
+				undo.push(copy(output));
+				paths.push(output.getPath());
 				format(file, output);
 			}
 		}
+		title();
+	}
+	
+	public File copy(File file) {
+		File copy = new File(file.getName());
+		Scanner reader;
+		FileWriter writer;
+		try {
+			reader = new Scanner(file);
+			writer = new FileWriter(copy);
+			while(reader.hasNextLine()) {
+				writer.write(reader.nextLine() + '\n');
+			}
+			reader.close();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return copy;
+	}
+
+	public void undo() {
+		String filepath = paths.pop();
+		System.out.println(filepath);
+		File copy = new File(filepath);
+		Scanner reader;
+		FileWriter writer;
+		try {
+			reader = new Scanner(undo.pop());
+			writer = new FileWriter(copy);
+			while(reader.hasNextLine()) {
+				writer.write(reader.nextLine() + '\n');
+			}
+			reader.close();
+			writer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		title();
 	}
 	
 	public void format(File file, File output) {
@@ -112,13 +176,12 @@ public class FormatterGUI extends Application{
 		FileWriter writer;
 		try {
 			reader = new Scanner(file);
-			writer = new FileWriter(output);
+			String out = "";
 			boolean string = false;
 			boolean comment = false;
 			boolean line = false;
 			while(reader.hasNextLine()) {
 				String str = reader.nextLine();
-				
 				str = FormatterController.squeeze(str);
 				
 				String brug = "";
@@ -159,9 +222,10 @@ public class FormatterGUI extends Application{
 				if(!string && !comment) {
 					brug = FormatterController.format(brug);
 				}
-				System.out.println(brug);
-				writer.write(FormatterController.unsqueeze(brug));
+				out += FormatterController.unsqueeze(brug);
 			}
+			writer = new FileWriter(output);
+			writer.write(out);
 			reader.close();
 			writer.close();
 		} catch (FileNotFoundException e) {
