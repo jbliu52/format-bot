@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -36,6 +37,7 @@ public class FormatterGUI extends Application{
 	private Stage stage;
 	private Stack<File> undo;
 	private Stack<String> paths;
+	private CheckBox sameFile;
 	
 	public static void main(String[] args) {
 		launch();
@@ -76,18 +78,19 @@ public class FormatterGUI extends Application{
 		Button undo = new Button("Undo!");
 		format.setFont(new Font(20));
 		
+		sameFile = new CheckBox("Write to different file");
+		
 		main.getChildren().addAll(title, format);
 		if(!paths.isEmpty() && !this.undo.isEmpty()) {
-			System.out.println("brug");
 			main.getChildren().add(undo);
 		}
+		main.getChildren().add(sameFile);
 		
 		root.getChildren().addAll(menu, main);
 		
 		format.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				fileSelect();
 			}
 		});
@@ -95,7 +98,6 @@ public class FormatterGUI extends Application{
 		undo.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				undo();
 			}
 		});
@@ -103,7 +105,6 @@ public class FormatterGUI extends Application{
 		quit.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				System.exit(0);
 			}
 		});
@@ -118,12 +119,17 @@ public class FormatterGUI extends Application{
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Java Files", "*.java"));
 		File file = fileChooser.showOpenDialog(stage);
 		if(file != null) {
-			File output = fileChooser.showOpenDialog(stage);
-			System.out.println(output.getPath());
-			if(output != null) {
-				undo.push(copy(output));
-				paths.push(output.getPath());
-				format(file, output);
+			if(!sameFile.isSelected()) {
+				undo.push(copy(file));
+				paths.push(file.getPath());
+				format(file, file);
+			}else {
+				File output = fileChooser.showOpenDialog(stage);
+				if(output != null) {
+					undo.push(copy(output));
+					paths.push(output.getPath());
+					format(file, output);
+				}
 			}
 		}
 		title();

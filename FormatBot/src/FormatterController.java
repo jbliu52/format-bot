@@ -113,15 +113,15 @@ public class FormatterController {
 	}
 	
 	private static String formatFor(String input) {
-		return input.replaceAll("for\\s*\\(", "for (").replaceAll("\\s*;\\s*", " ; ").replaceAll(")\\s*{", ") {");
+		return input.replaceAll("for\\s*\\(", "for (").replaceAll("\\s*;\\s*", " ; ");
 	}
 
 	public static String formatWhile(String input) {
-		return "";
+		return input.replaceAll("while\\s*\\(", "while (");
 	}
 
 	public static String formatSwitch(String input) {
-		return "";
+		return input.replaceAll("switch\\s*\\(", "while (");
 	}
 	
 //	private void setPrefs() {
